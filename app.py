@@ -7,7 +7,7 @@ import pdfkit
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = 'your_secret_key'  # Cambia esto a una clave secreta adecuada
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -31,7 +31,7 @@ def home():
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256')
+        password = generate_password_hash(request.form['password'])  # Usar método por defecto
         new_user = User(username=username, password=password)
 
         if User.query.filter_by(username=username).first():
