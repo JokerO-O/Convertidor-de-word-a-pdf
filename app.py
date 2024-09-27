@@ -35,7 +35,7 @@ def home():
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'])  # Usar método por defecto
+        password = generate_password_hash(request.form['password'])
         new_user = User(username=username, password=password)
 
         if User.query.filter_by(username=username).first():
@@ -73,23 +73,30 @@ def upload():
             temp_doc_path = os.path.join('static', file.filename)
             file.save(temp_doc_path)
 
+            # Verifica si el archivo se ha guardado correctamente
+            if not os.path.exists(temp_doc_path):
+                flash('File was not saved correctly.')
+                return redirect(url_for('upload'))
+
             # Convertir el archivo Word a PDF
             pdf_filename = file.filename.replace('.docx', '.pdf')
             pdf_file_path = os.path.join('static', pdf_filename)
 
-            # Leer el documento y crear un archivo PDF
-            doc = Document(temp_doc_path)
-            pdf_content = ""
-            for para in doc.paragraphs:
-                pdf_content += para.text + "\n"
+            try:
+                # Leer el documento y crear un archivo PDF
+                doc = Document(temp_doc_path)
+                pdf_content = "\n".join(para.text for para in doc.paragraphs)
 
-            # Usar pdfkit para convertir texto a PDF
-            pdfkit.from_string(pdf_content, pdf_file_path)
+                # Usar pdfkit para convertir texto a PDF
+                pdfkit.from_string(pdf_content, pdf_file_path)
 
-            # Eliminar el archivo temporal
-            os.remove(temp_doc_path)
+                # Eliminar el archivo temporal
+                os.remove(temp_doc_path)
 
-            return f'File converted successfully: <a href="{pdf_file_path}">Download PDF</a>'
+                return f'File converted successfully: <a href="{pdf_file_path}">Download PDF</a>'
+            except Exception as e:
+                flash(f'Error al convertir el archivo: {str(e)}')
+                return redirect(url_for('upload'))
 
         flash('Only .docx files are allowed!')
 
