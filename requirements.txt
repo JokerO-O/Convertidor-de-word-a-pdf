@@ -1,5 +1,6 @@
-Flask
-Flask-SQLAlchemy
-Flask-Login
-python-docx
-pdfkit
+Flask==2.3.2
+Flask-SQLAlchemy==2.5.1
+Flask-Login==0.6.2
+Werkzeug==2.3.2
+python-docx==0.8.11
+pdfkit==1.0.0
