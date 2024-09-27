@@ -13,6 +13,10 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# Crear la carpeta 'static' si no existe
+if not os.path.exists('static'):
+    os.makedirs('static')
+
 # Define el modelo User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
