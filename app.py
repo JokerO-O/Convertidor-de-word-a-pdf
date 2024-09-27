@@ -6,6 +6,7 @@ from docx import Document
 import pdfkit
 import os
 
+# Crear la aplicación Flask
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'  # Cambia esto a una clave secreta adecuada
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -90,15 +91,17 @@ def upload():
                 # Usar pdfkit para convertir texto a PDF
                 pdfkit.from_string(pdf_content, pdf_file_path)
 
+                print(f'PDF creado correctamente: {pdf_file_path}')  # Mensaje de éxito
                 # Eliminar el archivo temporal
                 os.remove(temp_doc_path)
 
                 return f'File converted successfully: <a href="{pdf_file_path}">Download PDF</a>'
             except Exception as e:
+                print(f'Error al convertir el archivo: {str(e)}')  # Mensaje de error
                 flash(f'Error al convertir el archivo: {str(e)}')
                 return redirect(url_for('upload'))
-
-        flash('Only .docx files are allowed!')
+        else:
+            flash('Only .docx files are allowed!')
 
     return render_template('upload.html')
 
