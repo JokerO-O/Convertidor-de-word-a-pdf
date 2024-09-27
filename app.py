@@ -13,17 +13,15 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-
+# Define el modelo User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -42,7 +40,6 @@ def register():
 
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -58,23 +55,37 @@ def login():
 
     return render_template('login.html')
 
-
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
     if request.method == 'POST':
         file = request.files['file']
         if file and file.filename.endswith('.docx'):
-            doc = Document(file)
+            # Guardar el archivo temporalmente
+            temp_doc_path = os.path.join('static', file.filename)
+            file.save(temp_doc_path)
+
+            # Convertir el archivo Word a PDF
             pdf_filename = file.filename.replace('.docx', '.pdf')
             pdf_file_path = os.path.join('static', pdf_filename)
-            pdfkit.from_file(file, pdf_file_path)
+
+            # Leer el documento y crear un archivo PDF
+            doc = Document(temp_doc_path)
+            pdf_content = ""
+            for para in doc.paragraphs:
+                pdf_content += para.text + "\n"
+
+            # Usar pdfkit para convertir texto a PDF
+            pdfkit.from_string(pdf_content, pdf_file_path)
+
+            # Eliminar el archivo temporal
+            os.remove(temp_doc_path)
+
             return f'File converted successfully: <a href="{pdf_file_path}">Download PDF</a>'
 
         flash('Only .docx files are allowed!')
 
     return render_template('upload.html')
-
 
 @app.route('/logout')
 @login_required
@@ -82,7 +93,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-
 if __name__ == '__main__':
-    db.create_all()
+    with app.app_context():
+        db.create_all()  # Crear todas las tablas una vez
     app.run(debug=True)
