@@ -1,5 +1,1 @@
 
-Flask-Login
-Werkzeug
-python-docx
-pdfkit
