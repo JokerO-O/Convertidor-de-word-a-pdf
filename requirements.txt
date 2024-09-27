@@ -1,6 +1,6 @@
 Flask
 Flask-SQLAlchemy
 Flask-Login
-Werkzeug
+Werkzeug==2.3.3
 python-docx
 pdfkit
